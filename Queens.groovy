@@ -1,3 +1,10 @@
+// Tommy Yim Li (tommy.li@firefire.co)
+// 2012-01-24
+
+/**
+ * Just another fun exercise
+ * @See http://en.wikipedia.org/wiki/Eight_queens_puzzle for problem
+ */
 class Queen {
   int x, y = 0
 
@@ -42,52 +49,45 @@ class Board {
   }
 
   void placeQueen(Queen q) {
-    boolean added = false
+    boolean done = false
     int currentRow = -1
     Queen queenToAdd = q
     if (queens.isEmpty()) {
       addQueen(q)
-      added = true
+      done = true
     }
-    while(!added && currentRow != q.y) {
+    while(!done && currentRow != q.y) {
       currentRow = queenToAdd.y
-      println "queenToAdd: $queenToAdd, currentRow: $currentRow"
       for (int x = queenToAdd.x; x < BOARD_SIZE; x++) {
         if (!board[x][queenToAdd.y]) {
           queenToAdd.x = x
           addQueen(queenToAdd)
-          added = true
+          done = true
           break
-          //println "added: $queenToAdd, currentRow: $currentRow, queens: $queens, this:\n$this"
         }
       }
-      if (added && currentRow != q.y) {
-        queenToAdd = new Queen(x: 0, y: currentRow + 1)
-        currentRow = -1
-        queenToAdd.x = 0
-        println "queenToAdd2: $queenToAdd, currentRow: $currentRow"
-        added = false
-        continue
-      }
-      if (!added) {
-        println "failed to add"
+      if (!done) {
         queenToAdd = null
         while (queenToAdd == null) {
           currentRow--
           queenToAdd = new Queen(x: queens[currentRow].x + 1, y: queens[currentRow].y)
-          println "about to add: $queenToAdd"
-          resetToPrevQueen()
           if (queenToAdd.x >= BOARD_SIZE) {
-            println "can't add coz x is outside border"
             queenToAdd = null
           }
+          resetToPrevQueen()
         }
-        println "queenToAdd3: $queenToAdd, currentRow: $currentRow"
+      }
+      else {
+        if (currentRow != q.y) {
+          queenToAdd = new Queen(x: 0, y: currentRow + 1)
+          currentRow = -1
+          done = false
+        }
       }
     }
   }
 
-  def addQueen(Queen q) {
+  void addQueen(Queen q) {
     queens.add(q)
     for (int x = 0; x < BOARD_SIZE; x++) {
       for (int y = 0; y < BOARD_SIZE; y++) {
@@ -98,7 +98,7 @@ class Board {
     }
   }
 
-  def resetToPrevQueen() {
+  void resetToPrevQueen() {
     queens.pop()
     init()
     def oldQueens = []
@@ -107,7 +107,6 @@ class Board {
     for (int i = 0; i < oldQueens.size(); i++) {
       addQueen(oldQueens[i])
     }
-    println "after popping: $this, queens: $queens"
   }
 
   String toString() {
