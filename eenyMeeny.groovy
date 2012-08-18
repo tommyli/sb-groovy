@@ -29,4 +29,29 @@ def eenyMeeny(n, k) {
   ['sequence': sequence, 'winner': children[i]]
 }
 
+def eenyMeenyRecursive(n, k) {
+  if (n == 1) {
+    return ['sequence': [], 'winner': n]
+  }
+  else {
+    eenyMeenyHelper(new ArrayList(0..(n-1)), k, k, [])
+  }
+}
+
+def eenyMeenyHelper(List players, Integer currk, Integer k, List sequence) {
+  if (players.size() == 1) {
+    return ['sequence': sequence, 'winner': players.head()]
+  }
+  else {
+    if (currk == 1) {
+      eenyMeenyHelper(players.tail(), k, k, (sequence << players.head()))
+    }
+    else {
+
+      eenyMeenyHelper(players.tail() << players.head(), currk - 1, k, sequence)
+    }
+  }
+}
+
 println eenyMeeny(10, 20)
+println eenyMeenyRecursive(10, 20)
