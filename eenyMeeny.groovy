@@ -1,9 +1,10 @@
 class EenyMeeny {
+
   static void main(args) {
     EenyMeeny em = new EenyMeeny()
-    println em.eenyMeeny(10, 20)
-    println em.eenyMeenyRecursiveTramp(100, 200)
-    println em.eenyMeenyRecursive(100, 200)
+    println em.eenyMeeny(5, 3)
+    println em.eenyMeenyRecursiveTramp(3000, 3)
+    // println em.eenyMeenyRecursive(3000, 3)  // throws StackOverflowError
   }
 
   def eenyMeeny(n, k) {
@@ -42,7 +43,7 @@ class EenyMeeny {
       return ['sequence': [], 'winner': n]
     }
     else {
-      eenyMeenyHelper(new ArrayList(0..(n-1)), k, k, [])
+      eenyMeenyHelper(new ArrayList(0..(n-1)), 0, k, [])
     }
   }
 
@@ -51,37 +52,29 @@ class EenyMeeny {
       return ['sequence': [], 'winner': n]
     }
     else {
-      eenyMeenyHelperTramp(new ArrayList(0..(n-1)), k, k, [])
+      eenyMeenyHelperTramp(new ArrayList(0..(n-1)), 0, k, [])
     }
   }
 
-  private eenyMeenyHelper(List players, Integer currk, Integer k, List sequence ) {
+  private eenyMeenyHelper(List players, Integer currPos, Integer k, List sequence) {
     if (players.size() == 1) {
       return ['sequence': sequence, 'winner': players.head()]
     }
     else {
-      if (currk == 1) {
-        eenyMeenyHelper(players.tail(), k, k, (sequence << players.head()))
-      }
-      else {
-
-        eenyMeenyHelper(players.tail() << players.head(), currk - 1, k, sequence)
-      }
+      def indexToRemove = (currPos + k - 1) % players.size()
+      def removedPlayer = players.remove(indexToRemove)
+      eenyMeenyHelper(players, indexToRemove, k, sequence << removedPlayer)
     }
   }
 
-  private def eenyMeenyHelperTramp = {List players, Integer currk, Integer k, List sequence ->
+  private def eenyMeenyHelperTramp = {List players, Integer currPos, Integer k, List sequence ->
     if (players.size() == 1) {
       return ['sequence': sequence, 'winner': players.head()]
     }
     else {
-      if (currk == 1) {
-        eenyMeenyHelperTramp.trampoline(players.tail(), k, k, (sequence << players.head()))
-      }
-      else {
-
-        eenyMeenyHelperTramp.trampoline(players.tail() << players.head(), currk - 1, k, sequence)
-      }
+      def indexToRemove = (currPos + k - 1) % players.size()
+      def removedPlayer = players.remove(indexToRemove)
+      eenyMeenyHelperTramp.trampoline(players, indexToRemove, k, sequence << removedPlayer)
     }
   }.trampoline()
 }
