@@ -52,8 +52,11 @@ static Long lcm(Long... nums) {
 class Rational {
   Long n, d = 1
 
+  static Rational ZERO = new Rational(0, 0)
+  static Rational ONE = new Rational(1, 1)
+
   Rational(Long n, Long d) {
-    if (d == 0) {throw new IllegalArgumentException('Denominator cannot be 0')}
+    // if (d == 0) {throw new IllegalArgumentException('Denominator cannot be 0')}
     this.n = n
     this.d = d
   }
@@ -62,11 +65,68 @@ class Rational {
     new Rational(Math.abs(n), Math.abs(d))
   }
 
+  Rational negative() {
+    new Rational(-1 * n, d)
+  }
+
   Rational plus(Rational addend) {
+    if ((addend ?: ZERO) == ZERO) return this
+    if (this == ZERO) return addend
+
     Long nResult = this.n * addend.d + this.d * addend.n
     Long dResult = this.d * addend.d
-    Long highFactor = RationalNumbers.hcf(nResult, dResult)
-    new Rational((nResult / highFactor) as Long, (dResult / highFactor) as Long)
+    new Rational(nResult, dResult).simplify()
+  }
+
+  Rational minus(Rational subtrahend) {
+    if ((subtrahend ?: ZERO) == ZERO) return this
+    if (this == ZERO) return subtrahend.negative()
+
+    Long nResult = this.n * subtrahend.d - this.d * subtrahend.n
+    Long dResult = this.d * subtrahend.d
+    new Rational(nResult, dResult).simplify()
+  }
+
+  Rational multiply(Rational factor) {
+    if (this == ZERO || (factor ?: ZERO) == ZERO) return ZERO
+
+    Long nResult = this.n * factor.n
+    Long dResult = this.d * factor.d
+    new Rational(nResult, dResult).simplify()
+  }
+
+  Rational div(Rational divisor) {
+    assert divisor != ZERO, 'Divide by zero error'
+    if (this == ZERO) return ZERO
+
+    Long nResult = this.n * divisor.d
+    Long dResult = this.d * divisor.n
+    assert dResult != 0, 'Divide by zero error'
+    new Rational(nResult, dResult).simplify()
+  }
+
+  Rational power(Long exponent) {
+    Long nResult = 1
+    Long dResult = 1
+
+    if (exponent == 0) {
+      return ONE
+    }
+    else if (exponent > 0) {
+      nResult = n ** exponent
+      dResult = d ** exponent
+    }
+    else {
+      nResult = d ** exponent.abs()
+      dResult = n ** exponent.abs()
+    }
+
+    new Rational(nResult, dResult).simplify()
+  }
+
+  Rational simplify() {
+    Long highFactor = RationalNumbers.hcf(n, d)
+    new Rational((n / highFactor) as Long, (d / highFactor) as Long)
   }
 }
 
@@ -94,3 +154,13 @@ assert lcm(11, 7, 13) == 11 * 7 * 13
 assert new Rational(1, 2) == new Rational(1, 2).absolute()
 assert new Rational(1, 2) + new Rational(2, 3) == new Rational(7, 6)
 assert new Rational(4, 2) + new Rational(4, 2) == new Rational(4, 1)
+assert new Rational(6, 2) - new Rational(1, 2) == new Rational(5, 2)
+assert new Rational(6, 2) - new Rational(-1, 2) == new Rational(7, 2)
+assert new Rational(2, 4) * new Rational(3, 6) == new Rational(1, 4)
+assert new Rational(-1, 2) * new Rational(-2, 3) == new Rational(1, 3)
+assert new Rational(-1, 2) * new Rational(2, 3) == new Rational(-1, 3)
+assert new Rational(8, 2) / new Rational(2, 4) == new Rational(8, 1)
+// assert new Rational(1, 2) / new Rational(-2, 3) == new Rational(-3, 4)
+assert new Rational(1, 2) ** 0 == new Rational(1, 1)
+assert new Rational(1, 2) ** 2 == new Rational(1, 4)
+assert new Rational(1, 2) ** -2 == new Rational(4, 1)
